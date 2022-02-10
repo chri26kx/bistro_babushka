@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;700&family=Be+Vietnam+Pro:wght@100;200;300;400&display=swap"
+      rel="stylesheet"
+    />
+    <title>Bistro Babushka</title>
+    <style>
+      * {
+        margin: 0px;
+        box-sizing: border-box;
+      }
+
+      img {
+        max-width: 100%;
+        border-radius: 1px;
+      }
+
+      @media (min-width: 600px) {
+        main {
+          margin: 0px 80px;
+        }
+      }
+      @media (max-width: 601px) {
+        main {
+          margin: 0px 40px;
+        }
+      }
+      section {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-gap: 20px;
+      }
+
+      article {
+        border: 2px solid rgb(92, 7, 24);
+        border-radius: 4px;
+        background-color: rgb(255, 255, 255);
+      }
+
+      #container article p,
+      #container article h2 {
+        padding: 10px;
+      }
+
+      #singleView article p,
+      #singleView article h2 {
+        padding: 10px 0px;
+      }
+
+      .klikbar {
+        cursor: pointer;
+      }
+
+      h1 {
+        padding: 40px 0px;
+        display: flex;
+        justify-content: center;
+        color: rgb(255, 255, 255);
+        font-family: "Be Vietnam Pro", sans-serif;
+        font-size: 3rem;
+      }
+
+      header {
+        background-color: crimson;
+      }
+
+      h2 {
+        font-family: futura-pt, sans-serif;
+        font-weight: 500;
+      }
+
+      .margin {
+        margin-top: 40px;
+        font-size: 40px;
+      }
+
+      .valgt {
+        background-color: rgb(206, 6, 6);
+        color: white;
+      }
+
+      #singleView {
+        display: none;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.788);
+        overflow: scroll;
+      }
+
+      #singleView article {
+        width: 80vh;
+        margin: 4rem auto;
+        border-radius: 4px;
+        padding: 12px;
+        background-color: white;
+        border: 2px solid black;
+
+        display: flex;
+        flex-direction: column;
+      }
+
+      @media (max-width: 600px) {
+        #singleView article {
+          width: auto;
+        }
+      }
+
+      .luk {
+        position: fixed;
+        margin: 2rem;
+        font-size: 2rem;
+        font-weight: bolder;
+        color: white;
+        cursor: pointer;
+        font-family: futura-pt, sans-serif;
+        font-weight: 800;
+      }
+
+      .pris {
+        font-style: italic;
+        font-weight: 800;
+      }
+
+      main nav {
+        margin: 20px 0px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+
+      button {
+        padding: 12px 28px;
+        border-radius: 4px;
+        width: 135px;
+        background-color: white;
+        border: solid rgba(206, 6, 6, 0.712) 1px;
+        color: black;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 0.9rem;
+      }
+
+      button:hover {
+        background-color: rgba(206, 6, 6, 0.712);
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Bistro Babushka</h1>
+    </header>
+    <main>
+      <h2 class="margin">Alle</h2>
+      <nav>
+        <button data-kategori="alle" class="valgt">Alle</button>
+        <button data-kategori="forretter">Forretter</button>
+        <button data-kategori="hovedretter">Hovedretter</button>
+        <button data-kategori="sideorders">Sideorders</button>
+        <button data-kategori="desserter">Desserter</button>
+        <button data-kategori="drikkevarer">Drikkevarer</button>
+      </nav>
+
+      <section id="container"></section>
+
+      <template>
+        <article class="klikbar">
+          <img class="billede" src="" alt="" />
+          <h2 class="navn"></h2>
+          <p class="info"></p>
+          <p class="pris"></p>
+        </article>
+      </template>
+
+      <section id="singleView">
+        <div class="luk">X</div>
+        <article>
+          <img class="billede" src="" alt="" />
+          <h2 class="navn"></h2>
+          <p class="beskrivelse"></p>
+          <p class="pris"></p>
+        </article>
+      </section>
+    </main>
+    <script>
+      const url = "https://babushka-dd8a.restdb.io/rest/menu";
+      const options = {
+        headers: {
+          "x-apikey": "600ec2fb1346a1524ff12de4",
+        },
+      };
+      const mainHeader = document.querySelector("body h2");
+
+      document.addEventListener("DOMContentLoaded", start);
+      let retter;
+      let filter = "alle";
+
+      function start() {
+        const filtrerKnapper = document.querySelectorAll("nav button");
+        filtrerKnapper.forEach((knap) =>
+          knap.addEventListener("click", filtrerRetter)
+        );
+
+        hentData(url);
+      }
+
+      async function hentData(url) {
+        const respons = await fetch(url, options);
+        retter = await respons.json();
+        console.log({ retter });
+        visRetter();
+      }
+
+      function filtrerRetter() {
+        console.log(this.dataset);
+
+        document.querySelector(".valgt").classList.remove("valgt");
+        this.classList.add("valgt");
+
+        filter = this.dataset.kategori;
+        visRetter();
+        mainHeader.textContent = this.textContent;
+      }
+
+      function visRetter() {
+        console.log("visRetter");
+
+        const container = document.querySelector("#container");
+        const template = document.querySelector("template");
+
+        container.textContent = "";
+
+        retter.forEach((ret) => {
+          if (filter == ret.kategori || filter == "alle") {
+            const klon = template.cloneNode(true).content;
+            klon.querySelector(".billede").src =
+              "medium/" + ret.billednavn + "-md.jpg";
+            klon.querySelector(".navn").textContent = ret.navn;
+            klon.querySelector(".info").textContent = ret.kortbeskrivelse;
+            klon.querySelector(".pris").textContent = ret.pris + " kr.";
+            klon
+              .querySelector("article")
+              .addEventListener("click", () => visEnkelRet(ret));
+            container.appendChild(klon);
+          }
+        });
+      }
+
+      function visEnkelRet(ret) {
+        console.log(ret);
+
+        singleView.style.display = "block";
+        singleView.querySelector("img").src =
+          "medium/" + ret.billednavn + "-md.jpg";
+        singleView.querySelector("h2").textContent = ret.navn;
+        singleView.querySelector(".beskrivelse").textContent =
+          ret.langbeskrivelse;
+        singleView.querySelector(".pris").textContent = ret.pris + " kr.";
+
+        document
+          .querySelector(".luk")
+          .addEventListener("click", () => (singleView.style.display = "none"));
+      }
+    </script>
+  </body>
+</html>
